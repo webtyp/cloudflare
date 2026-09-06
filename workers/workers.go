@@ -5,7 +5,7 @@ package workers
 import (
 	"syscall/js"
 
-	"github.com/tinywasm/cloudflare/log"
+	"webtyp.com/cloudflare/log"
 )
 
 // Handle registers fn as the single request handler and blocks forever.

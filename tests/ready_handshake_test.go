@@ -6,7 +6,7 @@ import (
 	"syscall/js"
 	"testing"
 
-	"github.com/tinywasm/cloudflare/workers"
+	"webtyp.com/cloudflare/workers"
 )
 
 // TestReady_SignalsItsOwnInstanceNotASharedGlobal is the regression test for the

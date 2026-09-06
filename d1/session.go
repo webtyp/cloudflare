@@ -5,8 +5,8 @@ package d1
 import (
 	"syscall/js"
 
-	"github.com/tinywasm/orm"
-	"github.com/tinywasm/sqlt"
+	"webtyp.com/orm"
+	"webtyp.com/sqlt"
 )
 
 const (

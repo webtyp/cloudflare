@@ -1,27 +1,27 @@
-module github.com/tinywasm/cloudflare
+module webtyp.com/cloudflare
 
 go 1.25.2
 
 require (
-	github.com/tinywasm/await v0.1.0
-	github.com/tinywasm/ddl v0.0.12
-	github.com/tinywasm/fmt v0.25.7
-	github.com/tinywasm/jsvalue v0.0.15
-	github.com/tinywasm/orm v0.12.0
-	github.com/tinywasm/sqlt v0.0.8
-	github.com/tinywasm/storage v0.0.6
+	webtyp.com/await v0.1.0
+	webtyp.com/ddl v0.0.12
+	webtyp.com/fmt v0.25.7
+	webtyp.com/jsvalue v0.0.15
+	webtyp.com/orm v0.12.0
+	webtyp.com/sqlt v0.0.8
+	webtyp.com/storage v0.0.6
 )
 
 require (
-	github.com/tinywasm/json v0.5.23
-	github.com/tinywasm/model v0.1.7
-	github.com/tinywasm/router v0.1.30
+	webtyp.com/json v0.5.23
+	webtyp.com/model v0.1.7
+	webtyp.com/router v0.1.30
 )
 
 require (
-	github.com/tinywasm/context v0.0.22
-	github.com/tinywasm/filetype v0.0.5
-	github.com/tinywasm/unixid v0.2.26
+	webtyp.com/context v0.0.22
+	webtyp.com/filetype v0.0.5
+	webtyp.com/unixid v0.2.26
 )
 
-require github.com/tinywasm/time v0.5.4 // indirect
+require webtyp.com/time v0.5.4 // indirect

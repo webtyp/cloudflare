@@ -5,11 +5,11 @@ package cloudflare_test
 import (
 	"testing"
 
-	"github.com/tinywasm/cloudflare/edge"
-	"github.com/tinywasm/json"
-	"github.com/tinywasm/model"
-	"github.com/tinywasm/router"
-	"github.com/tinywasm/router/conformance"
+	"webtyp.com/cloudflare/edge"
+	"webtyp.com/json"
+	"webtyp.com/model"
+	"webtyp.com/router"
+	"webtyp.com/router/conformance"
 )
 
 // conformanceUserHeader is the seam this test authenticates through. A deployed Worker reads

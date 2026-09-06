@@ -5,7 +5,7 @@ package workers
 import (
 	"syscall/js"
 
-	"github.com/tinywasm/fmt"
+	"webtyp.com/fmt"
 )
 
 // Request represents an incoming HTTP request to the Worker.

@@ -1,6 +1,6 @@
 package d1
 
-import . "github.com/tinywasm/fmt"
+import . "webtyp.com/fmt"
 
 const errPrefix = "d1: "
 

@@ -1,12 +1,12 @@
-# Architecture — tinywasm/cloudflare
+# Architecture — webtyp/cloudflare
 
-The Go/WASM runtime for Cloudflare Workers. This repo is the **library half** extracted from `tinywasm/goflare` — `goflare` keeps the build/deploy CLI and imports this repo only for the runtime it ships inside every Worker.
+The Go/WASM runtime for Cloudflare Workers. This repo is the **library half** extracted from `webtyp/goflare` — `goflare` keeps the build/deploy CLI and imports this repo only for the runtime it ships inside every Worker.
 
 ## Why the split
 
-`tinywasm/goflare` mixed two lifecycles in one module:
+`webtyp/goflare` mixed two lifecycles in one module:
 
-1. **Runtime** — code that compiles into every deployed Worker (`edge/`, `workers/`, `d1/`, `r2/`, `log/`). Its surface must be stable: every change ships inside a 1 MB-capped binary, for every consumer, at once. Env is `tinywasm/env` (auto-tag `!wasm`=`os`+`.env`, `wasm`=`context.env`).
+1. **Runtime** — code that compiles into every deployed Worker (`edge/`, `workers/`, `d1/`, `r2/`, `log/`). Its surface must be stable: every change ships inside a 1 MB-capped binary, for every consumer, at once. Env is `webtyp/env` (auto-tag `!wasm`=`os`+`.env`, `wasm`=`context.env`).
 2. **Tooling** — CLI that builds and deploys (`goflare.go`, `build.go`, `javascripts.go`, `assets.go`, `cloudflare.go` API client, `config.go`, `mode.go`, `devserver/`). It changes constantly and legitimately uses `os/exec`, file I/O, HTTP — none of which may ever reach the runtime side.
 
 Build tags kept them from cross-importing by accident, but one module meant one `go.mod`, one release cadence, and one directory to understand. Splitting makes the separation structural.
@@ -15,9 +15,9 @@ Build tags kept them from cross-importing by accident, but one module meant one 
 
 | Package | Build tag | Role |
 |---|---|---|
-| `edge/` | `//go:build wasm` | Router adapter on top of `workers/` (`router.Router` → `workers.Handle`). Compiles middleware once (`compile()`), gates via `Validate()`/`allows()`, dispatches via `Dispatch()`/`Serve()`. Route matching, pattern validation, and route ordering rules are owned by `tinywasm/router` and applied here so `httpd` and the edge router stay aligned via its conformance suite. |
+| `edge/` | `//go:build wasm` | Router adapter on top of `workers/` (`router.Router` → `workers.Handle`). Compiles middleware once (`compile()`), gates via `Validate()`/`allows()`, dispatches via `Dispatch()`/`Serve()`. Route matching, pattern validation, and route ordering rules are owned by `webtyp/router` and applied here so `httpd` and the edge router stay aligned via its conformance suite. |
 | `workers/` | `//go:build wasm` | JS↔Go bridge (`Request`/`Response` ↔ JS `Request`/`Response` via `syscall/js`). Owns the isolate handshake (`Handle()`/`Ready()` via `context.binding`). |
-| `d1/` | `//go:build wasm` | D1 adapter (`storage.Compiler` + `storage.Conn` over `context.env` binding) for `tinywasm/orm`. |
+| `d1/` | `//go:build wasm` | D1 adapter (`storage.Compiler` + `storage.Conn` over `context.env` binding) for `webtyp/orm`. |
 | `r2/` | `//go:build wasm` | R2 bucket adapter over `context.env` binding (`Put`/`Get`/`Delete`/`List`). |
 | `log/` | `//go:build wasm` | Minimal edge logging — `Reject` (4xx), `Fail` (5xx), `Panic` (recovered at request boundary). |
 | `assets/` | `//go:build !wasm` | JS half of the runtime (`wasm_exec_worker.js`, `runtime.mjs`, `worker.mjs`) embedded for `goflare`'s bundler (`assets/embed.go`). `!wasm`-tagged — a Worker never reads its own source as data. |
@@ -39,11 +39,11 @@ A Worker's Go instance is started **once per isolate**, not per request (fixed 2
 ## Testing
 
 ```bash
-go install github.com/tinywasm/devflow/cmd/gotest@latest
+go install webtyp.com/devflow/cmd/gotest@latest
 gotest
 ```
 
-`gotest` (see `tinywasm/devflow/docs/GOTEST.md`) runs `go vet`, `go test -race -cover` y la suite WASM en un browser real vía `wasmbrowsertest` (auto-detectada por `//go:build wasm`, no por el backend `GOOS=js` del toolchain Go que acepta imports que TinyGo rechazaría). Concurrency bugs (shared-global handshake) no pueden tener un test timing-dependiente en browser — pruébalos estructuralmente (assert sobre el JS shipeado o comportamiento Go con `js.Value` fake).
+`gotest` (see `webtyp/devflow/docs/GOTEST.md`) runs `go vet`, `go test -race -cover` y la suite WASM en un browser real vía `wasmbrowsertest` (auto-detectada por `//go:build wasm`, no por el backend `GOOS=js` del toolchain Go que acepta imports que TinyGo rechazaría). Concurrency bugs (shared-global handshake) no pueden tener un test timing-dependiente en browser — pruébalos estructuralmente (assert sobre el JS shipeado o comportamiento Go con `js.Value` fake).
 
 No `internal/` folders.
 

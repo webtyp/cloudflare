@@ -9,12 +9,12 @@
 package files
 
 import (
-	"github.com/tinywasm/cloudflare/log"
-	"github.com/tinywasm/filetype"
-	"github.com/tinywasm/fmt"
-	"github.com/tinywasm/model"
-	"github.com/tinywasm/router"
-	"github.com/tinywasm/unixid"
+	"webtyp.com/cloudflare/log"
+	"webtyp.com/filetype"
+	"webtyp.com/fmt"
+	"webtyp.com/model"
+	"webtyp.com/router"
+	"webtyp.com/unixid"
 )
 
 const (

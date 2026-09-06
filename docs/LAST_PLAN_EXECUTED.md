@@ -1,5 +1,5 @@
 ---
-PLAN: "feat: import the Cloudflare Workers runtime out of tinywasm/goflare"
+PLAN: "feat: import the Cloudflare Workers runtime out of webtyp/goflare"
 ---
 
 > This plan runs LOCALLY, by an agent other than the one that wrote it — not
@@ -14,11 +14,11 @@ PLAN: "feat: import the Cloudflare Workers runtime out of tinywasm/goflare"
 > rediscover the hard way, because each one shipped to production before it
 > was found.
 
-# Plan — `tinywasm/cloudflare`: import the runtime out of `goflare`
+# Plan — `webtyp/cloudflare`: import the runtime out of `goflare`
 
 ## Why
 
-`tinywasm/goflare` today mixes two things that don't share a lifecycle:
+`webtyp/goflare` today mixes two things that don't share a lifecycle:
 
 1. **The runtime** — code that compiles into every deployed Worker
    (`edge/`, `workers/`, `d1/`, `r2/`, `cloudflare/{env_native,env_wasm}.go`,
@@ -40,16 +40,16 @@ has to remember — see `CONSTRUCTION_HARNESS.md`, "things you have to
 remember… close it with types or a single path, not with prose."
 
 This repo has **zero consumers today** — nothing imports
-`github.com/tinywasm/cloudflare` yet, so every decision below is free to
+`webtyp.com/cloudflare` yet, so every decision below is free to
 break freely. `goflare` and its own consumers (`veltylabs/iam`,
-`veltylabs/misitio`, `tinywasm/goflare-demo`, `tinywasm/app`) update
+`veltylabs/misitio`, `webtyp/goflare-demo`, `webtyp/app`) update
 afterward, in their own separate one-line-import plans — not part of this
 one.
 
 ## Stage 1 — copy the runtime packages, verbatim except one rename
 
-Copy these directories from `tinywasm/goflare` (path:
-`/home/cesar/Dev/Project/tinywasm/goflare`) into this repo, unchanged except
+Copy these directories from `webtyp/goflare` (path:
+`/home/cesar/Dev/Project/webtyp/goflare`) into this repo, unchanged except
 package declarations where noted:
 
 | From (`goflare`) | To (`cloudflare`) | Change |
@@ -59,14 +59,14 @@ package declarations where noted:
 | `d1/*.go` | `d1/*.go` | none |
 | `r2/*.go` | `r2/*.go` | none |
 | `log/log.go` | `log/log.go` | none |
-| `cloudflare/env_native.go`, `cloudflare/env_wasm.go` | `env_native.go`, `env_wasm.go` (repo root) | **`package cloudflare` subpackage → repo-root package.** The subpackage name collided with the new repo's own name (`tinywasm/cloudflare/cloudflare`, awkward and redundant); at the root it reads as `cloudflare.Env`, exactly like it does today. |
+| `cloudflare/env_native.go`, `cloudflare/env_wasm.go` | `env_native.go`, `env_wasm.go` (repo root) | **`package cloudflare` subpackage → repo-root package.** The subpackage name collided with the new repo's own name (`webtyp/cloudflare/cloudflare`, awkward and redundant); at the root it reads as `cloudflare.Env`, exactly like it does today. |
 
 Every import inside these files that currently reads
-`github.com/tinywasm/goflare/<pkg>` (e.g. `edge/edge.go` importing
-`github.com/tinywasm/goflare/workers`, `github.com/tinywasm/goflare/log`)
-becomes `github.com/tinywasm/cloudflare/<pkg>`. `cloudflare.Env` references
+`webtyp.com/goflare/<pkg>` (e.g. `edge/edge.go` importing
+`webtyp.com/goflare/workers`, `webtyp.com/goflare/log`)
+becomes `webtyp.com/cloudflare/<pkg>`. `cloudflare.Env` references
 (`d1/adapter.go` does not use it, but check every file) become the
-repo-root import `github.com/tinywasm/cloudflare` with no subpackage
+repo-root import `webtyp.com/cloudflare` with no subpackage
 suffix.
 
 Do not carry over anything from `goflare`'s tooling side — no
@@ -116,27 +116,27 @@ bundler, not by the runtime itself.
 
 ## Stage 3 — point `goflare` at the new repo (companion change, same PR is fine)
 
-In `/home/cesar/Dev/Project/tinywasm/goflare`:
+In `/home/cesar/Dev/Project/webtyp/goflare`:
 
 - Delete `edge/`, `workers/`, `d1/`, `r2/`, `log/`, `cloudflare/`,
   `assets/wasm_exec_worker.js`, `assets/runtime.mjs`, `assets/worker.mjs`.
-- `go get github.com/tinywasm/cloudflare@<published version>`.
+- `go get webtyp.com/cloudflare@<published version>`.
 - `javascripts.go`: replace the three `//go:embed assets/...` declarations
   and their `var embeddedX []byte` with reads from
-  `cloudflareassets "github.com/tinywasm/cloudflare/assets"` —
+  `cloudflareassets "webtyp.com/cloudflare/assets"` —
   `cloudflareassets.WasmExecJS`, `.RuntimeMJS`, `.WorkerMJS` — everywhere
   `embeddedWasmExec`/`embeddedRuntime`/`embeddedWorker` were used.
 - `docs/BUILD_WORKER_ASSETS.md`, `docs/ARCHITECTURE.md`: update any mention
   of `assets/worker.mjs` etc. living in this repo to point at
-  `tinywasm/cloudflare` instead.
+  `webtyp/cloudflare` instead.
 - `AGENTS.md`: remove whatever runtime-lifecycle guidance duplicates what
-  now lives in `tinywasm/cloudflare/AGENTS.md` — link to it instead of
+  now lives in `webtyp/cloudflare/AGENTS.md` — link to it instead of
   restating it, so the two copies can't drift.
 
 Do **not** touch `veltylabs/iam`, `veltylabs/misitio`,
-`tinywasm/goflare-demo`, `tinywasm/app` here — their import-path updates
+`webtyp/goflare-demo`, `webtyp/app` here — their import-path updates
 are separate, one-line plans, written after this one is published (see
-`tinywasm/docs/CLOUDFLARE_RUNTIME_MASTER_PLAN.md`, Fase A2).
+`webtyp/docs/CLOUDFLARE_RUNTIME_MASTER_PLAN.md`, Fase A2).
 
 ## Stage 4 — tests
 
@@ -158,7 +158,7 @@ confirmed for these:
 - `tests/r2_test.go` → this repo's `tests/` (`r2.NewEdge` round-trip).
 
 **Leave in `goflare`** (rewrite the import to
-`github.com/tinywasm/cloudflare/...` but the test itself stays — it
+`webtyp.com/cloudflare/...` but the test itself stays — it
 exercises `goflare`'s own build/deploy, using the runtime only as a fixture):
 `tests/deploy_verify_test.go`, `tests/build_worker_assets_test.go`,
 `tests/edge_size_test.go` (calls `goflare.EnsureTinyGo`, a tooling
@@ -177,7 +177,7 @@ import rewrite).
   `goflare`, the isolate-once-per-lifecycle contract, and the package list
   from Stage 1's table.
 - `README.md`: replace the `gonew` placeholder with real usage — `go get
-  github.com/tinywasm/cloudflare/edge` (etc.), a minimal `main.go` example
+  webtyp.com/cloudflare/edge` (etc.), a minimal `main.go` example
   mirroring `veltylabs/iam/edge/main.go`'s shape.
 
 ## Acceptance criteria
@@ -185,8 +185,8 @@ import rewrite).
 - [ ] `go build ./...` and `go vet ./...` clean (both `GOOS=js GOARCH=wasm`
       for the wasm-tagged packages and native for `assets/embed.go`).
 - [ ] `GOOS=js GOARCH=wasm go test -exec wasmbrowsertest ./...` green.
-- [ ] `grep -rn "github.com/tinywasm/goflare" .` in this repo → empty.
-- [ ] In `goflare`: `grep -rn "github.com/tinywasm/cloudflare" .` → present
+- [ ] `grep -rn "webtyp.com/goflare" .` in this repo → empty.
+- [ ] In `goflare`: `grep -rn "webtyp.com/cloudflare" .` → present
       only in `javascripts.go` and `go.mod`/`go.sum`.
 - [ ] `goflare`'s own suite (`go test ./tests/...` and the wasm suite) still
       green after Stage 3 — a real `goflare build` on a fixture project
@@ -196,8 +196,8 @@ import rewrite).
 
 | Stage | Repo | Done when |
 |---|---|---|
-| 1 | `tinywasm/cloudflare` | `edge`/`workers`/`d1`/`r2`/`log`/root-`cloudflare` package copied, imports rewritten |
-| 2 | `tinywasm/cloudflare` | JS runtime moved to `assets/`, exposed via `assets/embed.go` |
-| 3 | `tinywasm/goflare` | Moved packages deleted; `javascripts.go` reads from `tinywasm/cloudflare/assets` |
+| 1 | `webtyp/cloudflare` | `edge`/`workers`/`d1`/`r2`/`log`/root-`cloudflare` package copied, imports rewritten |
+| 2 | `webtyp/cloudflare` | JS runtime moved to `assets/`, exposed via `assets/embed.go` |
+| 3 | `webtyp/goflare` | Moved packages deleted; `javascripts.go` reads from `webtyp/cloudflare/assets` |
 | 4 | both | Tests split by subject, all passing in their new home |
 | 5 | both | Docs updated, no stale path references |

@@ -5,13 +5,13 @@ package d1
 import (
 	"syscall/js"
 
-	"github.com/tinywasm/await"
-	"github.com/tinywasm/ddl"
-	"github.com/tinywasm/jsvalue"
-	"github.com/tinywasm/model"
-	"github.com/tinywasm/orm"
-	"github.com/tinywasm/sqlt"
-	"github.com/tinywasm/storage"
+	"webtyp.com/await"
+	"webtyp.com/ddl"
+	"webtyp.com/jsvalue"
+	"webtyp.com/model"
+	"webtyp.com/orm"
+	"webtyp.com/sqlt"
+	"webtyp.com/storage"
 )
 
 type adapter struct {

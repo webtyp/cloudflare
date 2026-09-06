@@ -1,4 +1,4 @@
-# Agent Guide — `tinywasm/cloudflare`
+# Agent Guide — `webtyp/cloudflare`
 
 Constraints for agents working on this library. Read this before any change.
 
@@ -8,7 +8,7 @@ Constraints for agents working on this library. Read this before any change.
 
 The Go/WASM runtime for Cloudflare Workers: the JS↔Go bridge (`workers/`),
 the router adapter built on it (`edge/`), and the storage adapters (`d1/`,
-`r2/`). It is the **library half** of what used to be `tinywasm/goflare` —
+`r2/`). It is the **library half** of what used to be `webtyp/goflare` —
 `goflare` keeps the build/deploy CLI and imports this repo only for the
 runtime it ships inside every Worker.
 
@@ -44,7 +44,7 @@ Don't repeat it.)
 behind `//go:build !wasm` — with a "transport, not tooling" justification
 that this file already rebuts (a build tag says nothing about purpose). This
 time review missed it: the plan was dispatched, the PR merged, and
-`tinywasm/cloudflare v0.0.3` published with it, before it was caught and
+`webtyp/cloudflare v0.0.3` published with it, before it was caught and
 reverted. If a plan proposes an HTTP client, `os/exec`, or CLI logic behind
 `!wasm` in this repo, reject it on sight — do not evaluate its framing.
 `goflare/cloudflare.go` already has `CfClient` for exactly this: Bearer auth
@@ -52,11 +52,11 @@ and `{success,errors,result}` envelope parsing. Reuse it there.
 
 ## No stdlib in `//go:build wasm` files
 
-Use `github.com/tinywasm/fmt` instead of `fmt`/`errors`/`strconv`/`strings`.
+Use `webtyp.com/fmt` instead of `fmt`/`errors`/`strconv`/`strings`.
 Verify with `GOOS=js GOARCH=wasm go list -deps ./<pkg>/` before shipping —
 `go list` under the *Go* toolchain accepts imports TinyGo will reject or that
 silently bloat the binary. `crypto/*` stdlib is a documented exception in
-`tinywasm/crypto` — it does not apply here; this repo has no reason to touch
+`webtyp/crypto` — it does not apply here; this repo has no reason to touch
 crypto directly.
 
 ## The isolate lifecycle — read this before touching `workers/` or `edge/Serve`
@@ -101,10 +101,10 @@ regression:
 `workers`/`edge`/`d1`/`r2` are `//go:build wasm` — they run in a real browser
 (via `wasmbrowsertest` under the hood, not the Go toolchain's `GOOS=js` backend
 which accepts imports TinyGo would reject). Use `gotest` (ecosystem runner,
-see `tinywasm/devflow/docs/GOTEST.md`):
+see `webtyp/devflow/docs/GOTEST.md`):
 
 ```bash
-go install github.com/tinywasm/devflow/cmd/gotest@latest
+go install webtyp.com/devflow/cmd/gotest@latest
 gotest              # vet + race + cover + wasm + badges
 gotest -run TestFoo # filtro por nombre
 ```
@@ -116,10 +116,10 @@ No headless-browser or Node harness exists in this ecosystem for driving
 can't get a timing-dependent regression test here) — prove those structurally
 (assert on the shipped JS source, or on Go-side behavior with a fake
 `js.Value` fixture) rather than fabricating a test that can't actually fail.
-See `tinywasm/goflare`'s `tests/ready_handshake_test.go` and
+See `webtyp/goflare`'s `tests/ready_handshake_test.go` and
 `tests/worker_runtime_test.go` for the pattern this produced.
 
 ## No `internal/` folders
 
 Signature of a forked dependency instead of a contribution upstream — see
-`tinywasm/app-releases/docs/CONSTRUCTION_HARNESS.md`.
+`webtyp/app-releases/docs/CONSTRUCTION_HARNESS.md`.

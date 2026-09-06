@@ -6,8 +6,8 @@ import (
 	"syscall/js"
 	"testing"
 
-	"github.com/tinywasm/model"
-	"github.com/tinywasm/router"
+	"webtyp.com/model"
+	"webtyp.com/router"
 )
 
 // captureRoute records the access a handler was registered with.

@@ -6,11 +6,11 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/tinywasm/cloudflare/files"
-	"github.com/tinywasm/cloudflare/r2"
-	"github.com/tinywasm/fmt"
-	"github.com/tinywasm/model"
-	"github.com/tinywasm/router"
+	"webtyp.com/cloudflare/files"
+	"webtyp.com/cloudflare/r2"
+	"webtyp.com/fmt"
+	"webtyp.com/model"
+	"webtyp.com/router"
 )
 
 const filesPrefix = "/api/files/"

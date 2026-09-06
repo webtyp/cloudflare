@@ -17,7 +17,7 @@ package log
 import (
 	"syscall/js"
 
-	"github.com/tinywasm/fmt"
+	"webtyp.com/fmt"
 )
 
 const prefix = "goflare"
@@ -49,7 +49,7 @@ func Panic(method, path string, v any) {
 	console("error", 500, method, path, "panic: ", v)
 }
 
-// console builds the log line in one tinywasm/fmt Conv buffer — the same
+// console builds the log line in one webtyp/fmt Conv buffer — the same
 // pooled primitive Println uses internally. status and each detail part are
 // written straight into that buffer via AnyToBuff, never pre-converted to a
 // standalone string first (no fmt.Sprint/Convert(...).String(), no +): every

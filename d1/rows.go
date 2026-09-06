@@ -5,9 +5,9 @@ package d1
 import (
 	"syscall/js"
 
-	. "github.com/tinywasm/fmt"
-	"github.com/tinywasm/jsvalue"
-	"github.com/tinywasm/storage"
+	. "webtyp.com/fmt"
+	"webtyp.com/jsvalue"
+	"webtyp.com/storage"
 )
 
 type d1Rows struct {

@@ -5,9 +5,9 @@ package cloudflare_test
 import (
 	"testing"
 
-	"github.com/tinywasm/cloudflare/edge"
-	"github.com/tinywasm/model"
-	"github.com/tinywasm/router"
+	"webtyp.com/cloudflare/edge"
+	"webtyp.com/model"
+	"webtyp.com/router"
 )
 
 func TestEdgeParamsAreNotContextValues(t *testing.T) {

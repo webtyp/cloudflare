@@ -5,8 +5,8 @@ package r2
 import (
 	"syscall/js"
 
-	"github.com/tinywasm/await"
-	"github.com/tinywasm/fmt"
+	"webtyp.com/await"
+	"webtyp.com/fmt"
 )
 
 type Bucket struct {

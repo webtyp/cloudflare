@@ -5,8 +5,8 @@ package cloudflare_test
 import (
 	"testing"
 
-	"github.com/tinywasm/cloudflare/edge"
-	"github.com/tinywasm/router"
+	"webtyp.com/cloudflare/edge"
+	"webtyp.com/router"
 )
 
 // TestMiddleware_WrappedOnceNotPerRequest is the regression test for

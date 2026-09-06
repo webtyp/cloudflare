@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/tinywasm/cloudflare/r2"
+	"webtyp.com/cloudflare/r2"
 )
 
 func TestR2_BinaryRoundtrip(t *testing.T) {

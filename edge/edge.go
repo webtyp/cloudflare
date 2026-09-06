@@ -5,14 +5,14 @@ package edge
 import (
 	"syscall/js"
 
-	"github.com/tinywasm/cloudflare/d1"
-	"github.com/tinywasm/cloudflare/log"
-	"github.com/tinywasm/cloudflare/workers"
-	"github.com/tinywasm/context"
-	"github.com/tinywasm/fmt"
-	"github.com/tinywasm/json"
-	"github.com/tinywasm/model"
-	"github.com/tinywasm/router"
+	"webtyp.com/cloudflare/d1"
+	"webtyp.com/cloudflare/log"
+	"webtyp.com/cloudflare/workers"
+	"webtyp.com/context"
+	"webtyp.com/fmt"
+	"webtyp.com/json"
+	"webtyp.com/model"
+	"webtyp.com/router"
 )
 
 const bookmarkKey = "d1_bookmark"
@@ -61,7 +61,7 @@ func (c *wasmContext) SetParams(names, values []string) {
 // Backed by two parallel slices rather than a map: TinyGo compiles maps badly
 // and inflates the binary, and a route never declares more than a handful of
 // parameters, so a linear scan is cheaper than the hash anyway. Same reasoning
-// as tinywasm/context, which backs SetValue/Value.
+// as webtyp/context, which backs SetValue/Value.
 func (c *wasmContext) Param(name string) string {
 	for i := 0; i < len(c.paramNames); i++ {
 		if c.paramNames[i] == name {
@@ -87,7 +87,7 @@ func (c *wasmContext) Write(b []byte) (int, error) {
 	return c.res.Write(b)
 }
 
-// SetValue stores a request-scoped value. tinywasm/context holds string
+// SetValue stores a request-scoped value. webtyp/context holds string
 // values only (no maps — fixed 16-pair array, TinyGo-friendly) and router.Context
 // is typed accordingly, so there is no non-string case left to guard against.
 // The remaining panic is the 16-pair capacity limit: a wiring mistake (too
