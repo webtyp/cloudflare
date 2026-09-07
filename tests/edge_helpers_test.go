@@ -77,6 +77,9 @@ func (r *captureRouter) Socket(path string, h router.SocketFunc) router.Route {
 func (r *captureRouter) Op(id string) router.Route {
 	return &captureRoute{}
 }
+func (r *captureRouter) Mount(prefix string, fn func(router.Router)) {
+	fn(r)
+}
 func (r *captureRouter) PublicAsset(path string, h router.HandlerFunc) {}
 func (r *captureRouter) PublicDir(prefix string, dir string)           {}
 func (r *captureRouter) Use(m ...router.Middleware)                    {}

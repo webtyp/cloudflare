@@ -324,6 +324,72 @@ func (r *wasmRouter) Socket(path string, h router.SocketFunc) router.Route {
 	panic("Socket not supported in this runtime")
 }
 
+// Mount registers a module's routes under a prefix. Every path the callback
+// registers is relative to that prefix; the absolute route lands on this
+// router exactly as if it had been registered directly, so match needs no
+// knowledge of mounts. Nested Mount composes.
+func (r *wasmRouter) Mount(prefix string, fn func(router.Router)) {
+	checkMountPrefix(prefix)
+	fn(&mountedRouter{parent: r, prefix: prefix})
+}
+
+// checkMountPrefix mirrors the native router: a Mount prefix must begin with
+// "/" and must not end with "/". Startup-time wiring — a loud panic is correct.
+func checkMountPrefix(prefix string) {
+	if !fmt.HasPrefix(prefix, "/") || fmt.HasSuffix(prefix, "/") {
+		panic(router.ErrMsgMountPrefix)
+	}
+}
+
+// mountedRouter is the Router handed to a Mount callback: it prefixes every
+// path and delegates to the parent. It never stores routes itself.
+type mountedRouter struct {
+	parent router.Router
+	prefix string
+}
+
+func (m *mountedRouter) Get(path string, h router.HandlerFunc) router.Route {
+	return m.parent.Get(m.prefix+path, h)
+}
+func (m *mountedRouter) Post(path string, h router.HandlerFunc) router.Route {
+	return m.parent.Post(m.prefix+path, h)
+}
+func (m *mountedRouter) Put(path string, h router.HandlerFunc) router.Route {
+	return m.parent.Put(m.prefix+path, h)
+}
+func (m *mountedRouter) Delete(path string, h router.HandlerFunc) router.Route {
+	return m.parent.Delete(m.prefix+path, h)
+}
+func (m *mountedRouter) Options(path string, h router.HandlerFunc) router.Route {
+	return m.parent.Options(m.prefix+path, h)
+}
+func (m *mountedRouter) Handle(method, path string, h router.HandlerFunc) router.Route {
+	return m.parent.Handle(method, m.prefix+path, h)
+}
+func (m *mountedRouter) Stream(path string, h router.StreamFunc) router.Route {
+	return m.parent.Stream(m.prefix+path, h)
+}
+func (m *mountedRouter) Socket(path string, h router.SocketFunc) router.Route {
+	return m.parent.Socket(m.prefix+path, h)
+}
+func (m *mountedRouter) PublicAsset(path string, h router.HandlerFunc) {
+	m.parent.PublicAsset(m.prefix+path, h)
+}
+func (m *mountedRouter) PublicDir(prefix string, dir string) {
+	m.parent.PublicDir(m.prefix+prefix, dir)
+}
+func (m *mountedRouter) Mount(prefix string, fn func(router.Router)) {
+	checkMountPrefix(prefix)
+	fn(&mountedRouter{parent: m, prefix: prefix})
+}
+func (m *mountedRouter) Use(mw ...router.Middleware) { m.parent.Use(mw...) }
+func (m *mountedRouter) Routes() []router.RouteInfo  { return m.parent.Routes() }
+
+var (
+	_ router.Router = (*wasmRouter)(nil)
+	_ router.Router = (*mountedRouter)(nil)
+)
+
 // match finds the route for a method+path. Route precedence is determined by
 // router.MoreSpecific. A route registered with an empty method matches any method.
 //
