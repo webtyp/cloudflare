@@ -3,7 +3,7 @@ module webtyp.com/cloudflare
 go 1.25.2
 
 require (
-	webtyp.com/await v0.1.1
+	webtyp.com/await v0.1.2
 	webtyp.com/ddl v0.0.15
 	webtyp.com/fmt v1.0.0
 	webtyp.com/jsvalue v0.1.4
