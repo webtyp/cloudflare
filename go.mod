@@ -9,7 +9,7 @@ require (
 	webtyp.com/jsvalue v0.1.4
 	webtyp.com/orm v0.12.1
 	webtyp.com/sqlt v0.0.10
-	webtyp.com/storage v0.0.7
+	webtyp.com/storage v0.0.8
 )
 
 require (
