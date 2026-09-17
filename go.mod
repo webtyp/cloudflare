@@ -9,12 +9,12 @@ require (
 	webtyp.com/jsvalue v0.1.4
 	webtyp.com/orm v0.12.4
 	webtyp.com/sqlt v0.0.10
-	webtyp.com/storage v0.0.8
+	webtyp.com/storage v0.0.10
 )
 
 require (
 	webtyp.com/json v0.5.25
-	webtyp.com/model v0.1.9
+	webtyp.com/model v0.2.0
 	webtyp.com/router v0.1.40
 )
 
