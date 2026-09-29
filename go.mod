@@ -24,4 +24,4 @@ require (
 	webtyp.com/unixid v0.2.28
 )
 
-require webtyp.com/time v0.5.5 // indirect
+require webtyp.com/time v0.5.7 // indirect
