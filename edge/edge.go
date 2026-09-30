@@ -220,6 +220,12 @@ func (r *wasmRoute) Accepts(args model.Fielder) router.Route {
 	return r
 }
 
+// Describe records what the route does; a transport that lists routes publishes it.
+func (r *wasmRoute) Describe(text string) router.Route {
+	r.info.Description = text
+	return r
+}
+
 // Config declares WHO the caller is and WHAT they may do. The library supplies the
 // mechanism; the policy belongs to the app.
 //
