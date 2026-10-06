@@ -1,6 +1,6 @@
 module webtyp.com/cloudflare
 
-go 1.25.2
+go 1.26.8
 
 require (
 	webtyp.com/await v0.1.2
@@ -13,7 +13,7 @@ require (
 )
 
 require (
-	webtyp.com/json v0.5.27
+	webtyp.com/json v0.5.29
 	webtyp.com/model v0.2.2
 	webtyp.com/router v0.3.2
 )
@@ -24,4 +24,7 @@ require (
 	webtyp.com/unixid v0.2.28
 )
 
-require webtyp.com/time v0.5.7 // indirect
+require (
+	webtyp.com/escape v0.1.0 // indirect
+	webtyp.com/time v0.5.7 // indirect
+)
