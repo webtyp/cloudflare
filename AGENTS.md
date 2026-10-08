@@ -122,4 +122,5 @@ See `webtyp/goflare`'s `tests/ready_handshake_test.go` and
 ## No `internal/` folders
 
 Signature of a forked dependency instead of a contribution upstream — see
-`webtyp/app-releases/docs/CONSTRUCTION_HARNESS.md`.
+skill **api-design** (the construction
+harness) in `webtyp/devskills/skills/api-design/SKILL.md`.
