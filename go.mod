@@ -21,7 +21,7 @@ require (
 require (
 	webtyp.com/context v0.0.23
 	webtyp.com/filetype v0.0.6
-	webtyp.com/unixid v0.2.28
+	webtyp.com/unixid v0.3.0
 )
 
 require (
