@@ -446,8 +446,6 @@ func (r *wasmRouter) match(method, pathname string) (*wasmRoute, []string, int) 
 	return nil, nil, 404
 }
 
-// allows is the access gate. The zero value of Access is AccessGuarded, so a route that
-// declares nothing is unreachable — and validateRoutes already refused to start on it.
 const (
 	bodyForbidden    = "Forbidden"
 	bodyUnauthorized = "Unauthorized"
@@ -461,8 +459,11 @@ func bodyFor(status int) string {
 	return bodyForbidden
 }
 
-// gate decides a request: 0 means serve; otherwise the status to answer
-// and the reason to log.
+// gate is the access gate: 0 means serve; otherwise the status to answer and the
+// reason to log. Order: anonymous → 403; single-factor on an MFA route → 401 with
+// the step-up challenge; missing permission → 403. The zero value of Access is
+// AccessGuarded, so a route that declares nothing is unreachable — and Validate
+// already refused to start on it.
 func (r *wasmRouter) gate(info router.RouteInfo, ctx router.Context) (status int, why string) {
 	if info.Access == model.AccessPublic {
 		return 0, ""
@@ -487,7 +488,6 @@ func (r *wasmRouter) gate(info router.RouteInfo, ctx router.Context) (status int
 
 	return 0, ""
 }
-
 
 // Validate refuses to start on a contradiction. Each of these denies EVERY caller, forever,
 // on a route that LOOKS protected — and the only way to discover that is a 403 in production,

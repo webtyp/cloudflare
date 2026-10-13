@@ -49,10 +49,10 @@ func (c *fakeCtx) SetCookie(router.Cookie)   {}
 // SetUserID and UserID record the identity for real. They used to be an empty setter and a
 // hardcoded "": a fake that could not hold a caller, so the gate could never see one. That is
 // why this suite stayed green while every upload answered 403 in production.
-func (c *fakeCtx) SetUserID(id string) { c.uid = id }
-func (c *fakeCtx) UserID() string      { return c.uid }
+func (c *fakeCtx) SetUserID(id string)            { c.uid = id }
+func (c *fakeCtx) UserID() string                 { return c.uid }
 func (c *fakeCtx) SetAssurance(a model.Assurance) {}
-func (c *fakeCtx) Assurance() model.Assurance { return model.AssuranceNone }
+func (c *fakeCtx) Assurance() model.Assurance     { return model.AssuranceNone }
 
 func (c *fakeCtx) Decode(into model.Decodable) error {
 	return nil

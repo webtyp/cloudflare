@@ -24,11 +24,11 @@ const conformanceAssuranceHeader = "X-Conformance-Assurance"
 // fakes passed while the file upload API answered 403 to every caller in production. A fake
 // that cannot fail is not a test, it is a blindfold.
 type conformanceCtx struct {
-	method  string
-	path    string
-	body    []byte
-	headers map[string]string
-	uid     string
+	method    string
+	path      string
+	body      []byte
+	headers   map[string]string
+	uid       string
 	assurance model.Assurance
 
 	status      int
@@ -75,8 +75,8 @@ func (c *conformanceCtx) Cookie(string) (router.Cookie, bool) {
 
 // SetUserID records the identity. It used to be an empty method — which meant the gate could
 // never see a caller, and no test could ever notice.
-func (c *conformanceCtx) SetUserID(id string) { c.uid = id }
-func (c *conformanceCtx) UserID() string      { return c.uid }
+func (c *conformanceCtx) SetUserID(id string)            { c.uid = id }
+func (c *conformanceCtx) UserID() string                 { return c.uid }
 func (c *conformanceCtx) SetAssurance(a model.Assurance) { c.assurance = a }
 func (c *conformanceCtx) Assurance() model.Assurance {
 	if c.uid == "" {
@@ -145,8 +145,8 @@ func TestEdgeConformance(t *testing.T) {
 
 				edge.Dispatch(r, ctx)
 				return conformance.Response{
-					Status: ctx.status,
-					Body: ctx.out,
+					Status:    ctx.status,
+					Body:      ctx.out,
 					Challenge: ctx.GetHeader(router.HeaderWWWAuthenticate),
 				}
 			}
