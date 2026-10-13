@@ -42,6 +42,7 @@ type paramSetter interface {
 }
 
 type wasmContext struct {
+	assurance   model.Assurance
 	req         *workers.Request
 	res         *workers.Response
 	path        string
@@ -106,6 +107,17 @@ func (c *wasmContext) SetValue(key, value string) {
 
 func (c *wasmContext) Value(key string) string {
 	return c.vals.Value(key)
+}
+
+func (c *wasmContext) SetAssurance(a model.Assurance) {
+	c.assurance = a
+}
+
+func (c *wasmContext) Assurance() model.Assurance {
+	if c.uid == "" {
+		return model.AssuranceNone
+	}
+	return c.assurance
 }
 
 func (c *wasmContext) SetUserID(id string) {
@@ -196,6 +208,11 @@ type wasmRoute struct {
 	info    router.RouteInfo
 	h       router.HandlerFunc
 	wrapped router.HandlerFunc // set once by compile(), never per request
+}
+
+func (r *wasmRoute) RequiresMFA() router.Route {
+	r.info.MFA = true
+	return r
 }
 
 func (r *wasmRoute) Requires(resource model.Resource, action model.Action) router.Route {
@@ -429,28 +446,47 @@ func (r *wasmRouter) match(method, pathname string) (*wasmRoute, []string, int) 
 	return nil, nil, 404
 }
 
-// allows is the access gate. The zero value of Access is AccessGuarded, so a route that
-// declares nothing is unreachable — and validateRoutes already refused to start on it.
-func (r *wasmRouter) allows(info router.RouteInfo, userID string) (bool, string) {
-	switch info.Access {
-	case model.AccessPublic:
-		return true, ""
-	case model.AccessAuthenticated:
-		if userID == "" {
-			return false, "anonymous caller on a route that requires an identity"
-		}
-		return true, ""
-	default: // model.AccessGuarded
-		if userID == "" {
-			return false, "anonymous caller on a route requiring " + string(info.Resource)
-		}
-		// model.Allowed denies when Authorize is nil: the absence of an answer is not
-		// permission.
-		if !model.Allowed(r.cfg.Authorize, userID, info.Resource, info.Action) {
-			return false, "identity lacks " + info.Action.String() + " on " + string(info.Resource)
-		}
-		return true, ""
+const (
+	bodyForbidden    = "Forbidden"
+	bodyUnauthorized = "Unauthorized"
+	whySingleFactor  = "single-factor caller on a route that requires MFA"
+)
+
+func bodyFor(status int) string {
+	if status == 401 {
+		return bodyUnauthorized
 	}
+	return bodyForbidden
+}
+
+// gate is the access gate: 0 means serve; otherwise the status to answer and the
+// reason to log. Order: anonymous → 403; single-factor on an MFA route → 401 with
+// the step-up challenge; missing permission → 403. The zero value of Access is
+// AccessGuarded, so a route that declares nothing is unreachable — and Validate
+// already refused to start on it.
+func (r *wasmRouter) gate(info router.RouteInfo, ctx router.Context) (status int, why string) {
+	if info.Access == model.AccessPublic {
+		return 0, ""
+	}
+
+	if ctx.UserID() == "" {
+		if info.Access == model.AccessAuthenticated {
+			return 403, "anonymous caller on a route that requires an identity"
+		}
+		return 403, "anonymous caller on a route requiring " + string(info.Resource)
+	}
+
+	if info.MFA && ctx.Assurance() < model.AssuranceMultiFactor {
+		return 401, whySingleFactor
+	}
+
+	if info.Access == model.AccessGuarded {
+		if !model.Allowed(r.cfg.Authorize, ctx.UserID(), info.Resource, info.Action) {
+			return 403, "identity lacks " + info.Action.String() + " on " + string(info.Resource)
+		}
+	}
+
+	return 0, ""
 }
 
 // Validate refuses to start on a contradiction. Each of these denies EVERY caller, forever,
@@ -462,6 +498,9 @@ func (r *wasmRouter) allows(info router.RouteInfo, userID string) (bool, string)
 func Validate(r router.Router) {
 	wr := r.(*wasmRouter)
 	for _, rt := range wr.routes {
+		if rt.info.MFA && rt.info.Access == model.AccessPublic {
+			panic("edge: route " + rt.info.Method + " " + rt.info.Path + " " + router.ErrMsgPublicRequiresMFA)
+		}
 		if rt.info.Access != model.AccessGuarded {
 			continue
 		}
@@ -560,10 +599,13 @@ func (r *wasmRouter) gateAndServe(ctx router.Context) {
 		wc.paramValues = values
 	}
 
-	if ok, why := r.allows(route.info, ctx.UserID()); !ok {
-		log.Reject(403, method, pathname, why)
-		ctx.WriteStatus(403)
-		ctx.Write([]byte("Forbidden"))
+	if status, why := r.gate(route.info, ctx); status != 0 {
+		log.Reject(status, method, pathname, why)
+		if status == 401 {
+			ctx.SetHeader(router.HeaderWWWAuthenticate, router.ChallengeMFARequired)
+		}
+		ctx.WriteStatus(status)
+		ctx.Write([]byte(bodyFor(status)))
 		return
 	}
 

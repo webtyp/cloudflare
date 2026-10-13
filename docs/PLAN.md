@@ -2,8 +2,10 @@
 PLAN: "feat(edge): enforce RequiresMFA and carry request assurance"
 EXECUTOR: jules
 REVIEWER: none
-STATUS: running
+STATUS: review
 SESSION: 15673088308196320398
+PR: https://github.com/webtyp/cloudflare/pull/4
+REVIEWED_COMMIT: f9ae935bc7f6e6d19daeec17db49a77f389f1af6
 ---
 
 > This plan is dispatched via the CodeJob workflow. See skill: agents-workflow.

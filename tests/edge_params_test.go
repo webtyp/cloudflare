@@ -125,20 +125,22 @@ func (c *testCtx) Param(name string) string {
 	return ""
 }
 
-func (c *testCtx) Method() string                             { return c.method }
-func (c *testCtx) Path() string                               { return c.path }
-func (c *testCtx) Body() []byte                               { return nil }
-func (c *testCtx) GetHeader(string) string                    { return "" }
-func (c *testCtx) SetHeader(string, string)                   {}
-func (c *testCtx) WriteStatus(code int)                       { c.status = code }
-func (c *testCtx) Write(b []byte) (int, error)                { return len(b), nil }
-func (c *testCtx) SetValue(string, string)                    {}
-func (c *testCtx) Value(string) string                        { return "" }
-func (c *testCtx) SetUserID(string)                           {}
-func (c *testCtx) UserID() string                             { return "" }
-func (c *testCtx) Decode(model.Decodable) error             { return nil }
-func (c *testCtx) Encode(model.Encodable) error             { return nil }
-func (c *testCtx) SetCookie(router.Cookie)                    {}
-func (c *testCtx) Cookie(string) (router.Cookie, bool)        { return router.Cookie{}, false }
+func (c *testCtx) Method() string                      { return c.method }
+func (c *testCtx) Path() string                        { return c.path }
+func (c *testCtx) Body() []byte                        { return nil }
+func (c *testCtx) GetHeader(string) string             { return "" }
+func (c *testCtx) SetHeader(string, string)            {}
+func (c *testCtx) WriteStatus(code int)                { c.status = code }
+func (c *testCtx) Write(b []byte) (int, error)         { return len(b), nil }
+func (c *testCtx) SetValue(string, string)             {}
+func (c *testCtx) Value(string) string                 { return "" }
+func (c *testCtx) SetUserID(string)                    {}
+func (c *testCtx) UserID() string                      { return "" }
+func (c *testCtx) SetAssurance(model.Assurance)        {}
+func (c *testCtx) Assurance() model.Assurance          { return model.AssuranceNone }
+func (c *testCtx) Decode(model.Decodable) error        { return nil }
+func (c *testCtx) Encode(model.Encodable) error        { return nil }
+func (c *testCtx) SetCookie(router.Cookie)             {}
+func (c *testCtx) Cookie(string) (router.Cookie, bool) { return router.Cookie{}, false }
 
 var _ router.Context = (*testCtx)(nil)

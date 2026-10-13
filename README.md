@@ -51,6 +51,9 @@ func main() {
 		ctx.Write([]byte("item " + id))
 	}).Public()
 
+	// access control features
+	// r.Get("/admin", handler).Authenticated().RequiresMFA().Requires("config", model.ActionWrite)
+
 	// register more routes...
 
 	edge.Serve(r) // blocks forever, handles every request in this isolate
