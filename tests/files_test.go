@@ -51,6 +51,8 @@ func (c *fakeCtx) SetCookie(router.Cookie)   {}
 // why this suite stayed green while every upload answered 403 in production.
 func (c *fakeCtx) SetUserID(id string) { c.uid = id }
 func (c *fakeCtx) UserID() string      { return c.uid }
+func (c *fakeCtx) SetAssurance(a model.Assurance) {}
+func (c *fakeCtx) Assurance() model.Assurance { return model.AssuranceNone }
 
 func (c *fakeCtx) Decode(into model.Decodable) error {
 	return nil

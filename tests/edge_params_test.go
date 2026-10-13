@@ -136,6 +136,8 @@ func (c *testCtx) SetValue(string, string)                    {}
 func (c *testCtx) Value(string) string                        { return "" }
 func (c *testCtx) SetUserID(string)                           {}
 func (c *testCtx) UserID() string                             { return "" }
+func (c *testCtx) SetAssurance(model.Assurance)               {}
+func (c *testCtx) Assurance() model.Assurance                 { return model.AssuranceNone }
 func (c *testCtx) Decode(model.Decodable) error             { return nil }
 func (c *testCtx) Encode(model.Encodable) error             { return nil }
 func (c *testCtx) SetCookie(router.Cookie)                    {}

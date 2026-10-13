@@ -15,6 +15,7 @@ import (
 // conformanceUserHeader is the seam this test authenticates through. A deployed Worker reads
 // a cookie or a bearer token instead; the shape is identical, which is the point.
 const conformanceUserHeader = "X-Conformance-User"
+const conformanceAssuranceHeader = "X-Conformance-Assurance"
 
 // conformanceCtx is a router.Context that records what the pipeline did to it.
 //
@@ -28,6 +29,7 @@ type conformanceCtx struct {
 	body    []byte
 	headers map[string]string
 	uid     string
+	assurance model.Assurance
 
 	status      int
 	out         []byte
@@ -75,6 +77,13 @@ func (c *conformanceCtx) Cookie(string) (router.Cookie, bool) {
 // never see a caller, and no test could ever notice.
 func (c *conformanceCtx) SetUserID(id string) { c.uid = id }
 func (c *conformanceCtx) UserID() string      { return c.uid }
+func (c *conformanceCtx) SetAssurance(a model.Assurance) { c.assurance = a }
+func (c *conformanceCtx) Assurance() model.Assurance {
+	if c.uid == "" {
+		return model.AssuranceNone
+	}
+	return c.assurance
+}
 
 func (c *conformanceCtx) Decode(into model.Decodable) error {
 	return json.Decode(c.Body(), into)
@@ -104,18 +113,42 @@ func TestEdgeConformance(t *testing.T) {
 						if id := ctx.GetHeader(conformanceUserHeader); id != "" {
 							ctx.SetUserID(id)
 						}
+						if a := ctx.GetHeader(conformanceAssuranceHeader); a != "" {
+							switch a {
+							case "1":
+								ctx.SetAssurance(model.AssuranceSingleFactor)
+							case "2":
+								ctx.SetAssurance(model.AssuranceMultiFactor)
+							}
+						}
 						next(ctx)
 					}
 				},
 			})
 
-			serve := func(method, path string, body []byte, userID string) conformance.Response {
+			serve := func(method, path string, body []byte, who conformance.Identity) conformance.Response {
 				ctx := &conformanceCtx{method: method, path: path, body: body}
-				if userID != "" {
-					ctx.SetHeader(conformanceUserHeader, userID)
+				if who.UserID != "" {
+					ctx.SetHeader(conformanceUserHeader, who.UserID)
 				}
+
+				var a string
+				switch who.Assurance {
+				case model.AssuranceSingleFactor:
+					a = "1"
+				case model.AssuranceMultiFactor:
+					a = "2"
+				default:
+					a = "0"
+				}
+				ctx.SetHeader(conformanceAssuranceHeader, a)
+
 				edge.Dispatch(r, ctx)
-				return conformance.Response{Status: ctx.status, Body: ctx.out}
+				return conformance.Response{
+					Status: ctx.status,
+					Body: ctx.out,
+					Challenge: ctx.GetHeader(router.HeaderWWWAuthenticate),
+				}
 			}
 			return r, serve
 		},
