@@ -21,10 +21,11 @@ require (
 require (
 	webtyp.com/context v0.0.23
 	webtyp.com/filetype v0.0.6
-	webtyp.com/unixid v0.3.0
+	webtyp.com/unixid v0.3.1
 )
 
 require (
+	webtyp.com/calendar v0.1.0 // indirect
 	webtyp.com/escape v0.1.0 // indirect
-	webtyp.com/time v0.5.7 // indirect
+	webtyp.com/time v0.6.2 // indirect
 )
