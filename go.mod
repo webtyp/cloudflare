@@ -14,7 +14,7 @@ require (
 
 require (
 	webtyp.com/json v0.5.29
-	webtyp.com/model v0.2.7
+	webtyp.com/model v0.2.8
 	webtyp.com/router v0.4.9
 )
 
