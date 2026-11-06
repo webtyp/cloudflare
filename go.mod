@@ -7,7 +7,7 @@ require (
 	webtyp.com/ddl v0.0.46
 	webtyp.com/fmt v1.0.0
 	webtyp.com/jsvalue v0.1.6
-	webtyp.com/orm v0.12.25
+	webtyp.com/orm v0.12.26
 	webtyp.com/sqlt v0.0.14
 	webtyp.com/storage v0.1.18
 )
