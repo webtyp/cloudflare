@@ -73,8 +73,10 @@ func (c *wasmContext) Param(name string) string {
 }
 
 func (c *wasmContext) Method() string { return c.req.Method }
-func (c *wasmContext) Path() string   { return c.path }
-func (c *wasmContext) Body() []byte   { return c.req.Body() }
+
+// Path returns the pathname only (no query): the router matches on it. The query is read by Decode.
+func (c *wasmContext) Path() string { return c.path }
+func (c *wasmContext) Body() []byte { return c.req.Body() }
 func (c *wasmContext) GetHeader(key string) string {
 	return c.req.Header(key)
 }
@@ -128,8 +130,11 @@ func (c *wasmContext) UserID() string {
 	return c.uid
 }
 
+// Decode reads the arguments of the request: a GET carries them in its query, every other method in its body.
 func (c *wasmContext) Decode(into model.Decodable) error {
-	return json.Decode(c.Body(), into)
+	return router.DecodeArgs(c.Method(), router.QueryOf(c.req.URL), c.Body(), into, func(body []byte, d model.Decodable) error {
+		return json.Decode(body, d)
+	})
 }
 
 func (c *wasmContext) Encode(v model.Encodable) error {

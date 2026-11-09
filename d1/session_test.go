@@ -5,6 +5,8 @@ package d1
 import (
 	"syscall/js"
 	"testing"
+
+	"webtyp.com/storage"
 )
 
 type mockStore struct {
@@ -46,6 +48,15 @@ func fakePromise(val js.Value) js.Value {
 	return js.Global().Get("Promise").Call("resolve", val)
 }
 
+// runResult is what D1's run() resolves with: an object whose meta.changes is the number of rows changed.
+func runResult(changes int) js.Value {
+	meta := js.Global().Get("Object").New()
+	meta.Set("changes", changes)
+	res := js.Global().Get("Object").New()
+	res.Set("meta", meta)
+	return res
+}
+
 func TestNewEdgeDoesNotUseSessions(t *testing.T) {
 	withSessionCalled := false
 	prepareCalled := false
@@ -65,7 +76,7 @@ func TestNewEdgeDoesNotUseSessions(t *testing.T) {
 		}))
 
 		stmt.Set("run", js.FuncOf(func(this js.Value, args []js.Value) any {
-			return fakePromise(js.Undefined())
+			return fakePromise(runResult(1))
 		}))
 		return stmt
 	})
@@ -79,7 +90,7 @@ func TestNewEdgeDoesNotUseSessions(t *testing.T) {
 	}
 
 	adapterObj := db.RawConn().(*adapter)
-	err = adapterObj.Exec("SELECT 1")
+	_, err = adapterObj.Exec("SELECT 1")
 	if err != nil {
 		t.Fatalf("Exec failed: %v", err)
 	}
@@ -181,7 +192,7 @@ func TestNullBookmarkIsIgnored(t *testing.T) {
 			return stmt
 		}))
 		stmt.Set("run", js.FuncOf(func(this js.Value, args []js.Value) any {
-			return fakePromise(js.Undefined())
+			return fakePromise(runResult(1))
 		}))
 		return stmt
 	})
@@ -206,12 +217,61 @@ func TestNullBookmarkIsIgnored(t *testing.T) {
 	}
 
 	adapterObj := db.RawConn().(*adapter)
-	err = adapterObj.Exec("UPDATE foo SET bar = 1")
+	_, err = adapterObj.Exec("UPDATE foo SET bar = 1")
 	if err != nil {
 		t.Fatalf("Exec failed: %v", err)
 	}
 
 	if store.Bookmark() != "initial-bm" {
 		t.Errorf("expected store bookmark to stay 'initial-bm', got %q", store.Bookmark())
+	}
+}
+
+// execOver builds an adapter whose prepared statement's run() is the given function.
+func execOver(t *testing.T, run func() js.Value) *adapter {
+	t.Helper()
+	prepare := js.FuncOf(func(this js.Value, args []js.Value) any {
+		stmt := js.Global().Get("Object").New()
+		stmt.Set("run", js.FuncOf(func(this js.Value, args []js.Value) any { return run() }))
+		return stmt
+	})
+	setupMockDB(js.Undefined(), js.ValueOf(prepare))
+	db, err := NewEdge("DB")
+	if err != nil {
+		t.Fatalf("NewEdge failed: %v", err)
+	}
+	return db.RawConn().(*adapter)
+}
+
+func TestAdapterExec_ReportsRowsChanged(t *testing.T) {
+	a := execOver(t, func() js.Value { return fakePromise(runResult(3)) })
+	res, err := a.Exec("UPDATE foo SET bar = 1")
+	if err != nil || res.RowsAffected() != 3 {
+		t.Fatalf("rows = %v, err = %v; want 3, nil", res, err)
+	}
+}
+
+func TestAdapterExec_UniqueViolationIsDuplicate(t *testing.T) {
+	a := execOver(t, func() js.Value {
+		return js.Global().Get("Promise").Call("reject", js.Global().Get("Error").New("D1_ERROR: UNIQUE constraint failed: foo.id: SQLITE_CONSTRAINT"))
+	})
+	if _, err := a.Exec("INSERT INTO foo (id) VALUES (1)"); !storage.IsDuplicate(err) {
+		t.Fatalf("a repeated key must satisfy storage.IsDuplicate, got %v", err)
+	}
+}
+
+func TestAdapterExec_OtherErrorIsReturnedAsItCame(t *testing.T) {
+	a := execOver(t, func() js.Value {
+		return js.Global().Get("Promise").Call("reject", js.Global().Get("Error").New("no such table: foo"))
+	})
+	if _, err := a.Exec("SELECT * FROM foo"); err == nil || storage.IsDuplicate(err) {
+		t.Fatalf("an unrelated error must come back unchanged and not as a duplicate, got %v", err)
+	}
+}
+
+func TestAdapterExec_MissingCountIsAnError(t *testing.T) {
+	a := execOver(t, func() js.Value { return fakePromise(js.Undefined()) })
+	if _, err := a.Exec("UPDATE foo SET bar = 1"); err != ErrNoChangesCount {
+		t.Fatalf("a run result without meta.changes must be ErrNoChangesCount, got %v", err)
 	}
 }

@@ -36,6 +36,10 @@ A Worker's Go instance is started **once per isolate**, not per request (fixed 2
 
 `__GOFLARE_VERSION__` in `worker.mjs` is left as text; `goflare`'s bundler does the substitution.
 
+## Request decoding on the edge
+
+`wasmContext.Decode` follows `router.DecodeArgs`: a GET is decoded from its query (`router.QueryOf` over the request URL), every other method from its JSON body. `Path()` is the pathname only, because `Dispatch` matches routes on it.
+
 ## Testing
 
 ```bash
@@ -44,6 +48,8 @@ gotest
 ```
 
 `gotest` (see `webtyp/devflow/docs/GOTEST.md`) runs `go vet`, `go test -race -cover` y la suite WASM en un browser real vía `wasmbrowsertest` (auto-detectada por `//go:build wasm`, no por el backend `GOOS=js` del toolchain Go que acepta imports que TinyGo rechazaría). Concurrency bugs (shared-global handshake) no pueden tener un test timing-dependiente en browser — pruébalos estructuralmente (assert sobre el JS shipeado o comportamiento Go con `js.Value` fake).
+
+**D1 against the real thing.** The fake `context.env` of the browser tests cannot reveal how D1 answers (it never returned a number for a bool, nor a `BLOB` as an array). `tests/d1docker/` runs the conformance suites of `webtyp/storage` and `webtyp/ddl` over `d1.NewEdge` against a **real local D1** (Miniflare/workerd) inside Docker: `tests/d1docker/run.sh`. It is its own Go module, so `gotest` of this repo never needs Docker.
 
 No `internal/` folders.
 

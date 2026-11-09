@@ -7,6 +7,7 @@ import (
 
 	"webtyp.com/await"
 	"webtyp.com/ddl"
+	"webtyp.com/fmt"
 	"webtyp.com/jsvalue"
 	"webtyp.com/model"
 	"webtyp.com/orm"
@@ -74,11 +75,42 @@ func (a *adapter) captureBookmark(sess js.Value) {
 	a.store.SetBookmark(bm.String())
 }
 
-func (a *adapter) Exec(query string, args ...any) error {
+// uniqueViolation is the text SQLite (hence D1) puts in the error of a repeated primary key or unique value.
+const uniqueViolation = "UNIQUE constraint failed"
+
+// Exec runs one statement and reports how many rows it changed (D1's meta.changes). A repeated key or unique value is
+// returned as storage.Duplicate, so callers tell it apart with storage.IsDuplicate.
+func (a *adapter) Exec(query string, args ...any) (storage.Result, error) {
 	stmt, sess := a.stmt(query)
-	_, err := await.Promise(bindArgs(stmt, args).Call("run"))
+	res, err := await.Promise(bindArgs(stmt, args).Call("run"))
 	a.captureBookmark(sess)
-	return err
+	if err != nil {
+		if fmt.Contains(err.Error(), uniqueViolation) {
+			return storage.Affected(0), storage.Duplicate(err)
+		}
+		return storage.Affected(0), err
+	}
+	changes, ok := changesOf(res)
+	if !ok {
+		return storage.Affected(0), ErrNoChangesCount
+	}
+	return storage.Affected(changes), nil
+}
+
+// changesOf reads meta.changes from the result of run(); ok is false when the result has no such number.
+func changesOf(res js.Value) (changes int64, ok bool) {
+	if res.Type() != js.TypeObject {
+		return 0, false
+	}
+	meta := res.Get("meta")
+	if meta.Type() != js.TypeObject {
+		return 0, false
+	}
+	n := meta.Get("changes")
+	if n.Type() != js.TypeNumber {
+		return 0, false
+	}
+	return int64(n.Int()), true
 }
 
 func (a *adapter) QueryRow(query string, args ...any) storage.Scanner {
@@ -91,7 +123,7 @@ func (a *adapter) QueryRow(query string, args ...any) storage.Scanner {
 		return &errScanner{err}
 	}
 	if arr.Length() < 2 {
-		return &errScanner{orm.ErrNotFound}
+		return &errScanner{storage.ErrNoRows}
 	}
 	return &rowScanner{arr.Index(1)}
 }

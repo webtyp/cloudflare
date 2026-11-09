@@ -47,7 +47,7 @@ func (r *d1Rows) Scan(dest ...any) error {
 		return Err(errPrefix + "scan destination count mismatch")
 	}
 	for i, ptr := range dest {
-		if err := jsvalue.ScanValue(row.Index(i), ptr); err != nil {
+		if err := scanCell(row.Index(i), ptr); err != nil {
 			return err
 		}
 	}
@@ -56,6 +56,40 @@ func (r *d1Rows) Scan(dest ...any) error {
 
 func (r *d1Rows) Close() error { return nil }
 func (r *d1Rows) Err() error   { return nil }
+
+// scanCell copies one D1 cell into dest through storage.ScanAny, the one definition of what a database value means in Go
+// (NULL is the zero value, SQLite's 0/1 is a bool, ...).
+func scanCell(cell js.Value, dest any) error {
+	return storage.ScanAny(cellValue(cell), dest)
+}
+
+// cellValue is the Go value of one D1 cell. A BLOB arrives as a Uint8Array, an ArrayBuffer or (Miniflare) an array of byte
+// numbers; every other cell is a plain JS value.
+func cellValue(cell js.Value) any {
+	if cell.Type() != js.TypeObject {
+		return jsvalue.ToAny(cell)
+	}
+	if cell.InstanceOf(jsvalue.Uint8ArrayClass) {
+		return copyBytes(cell)
+	}
+	if cell.InstanceOf(js.Global().Get("ArrayBuffer")) {
+		return copyBytes(jsvalue.Uint8ArrayClass.New(cell))
+	}
+	if cell.InstanceOf(js.Global().Get("Array")) {
+		out := make([]byte, cell.Length())
+		for i := range out {
+			out[i] = byte(cell.Index(i).Int())
+		}
+		return out
+	}
+	return jsvalue.ToAny(cell)
+}
+
+func copyBytes(u8 js.Value) []byte {
+	b := make([]byte, u8.Length())
+	js.CopyBytesToGo(b, u8)
+	return b
+}
 
 type errScanner struct{ err error }
 
@@ -71,7 +105,7 @@ func (s *rowScanner) Scan(dest ...any) error {
 		return Err(errPrefix + "scan destination count mismatch")
 	}
 	for i, ptr := range dest {
-		if err := jsvalue.ScanValue(s.row.Index(i), ptr); err != nil {
+		if err := scanCell(s.row.Index(i), ptr); err != nil {
 			return err
 		}
 	}
