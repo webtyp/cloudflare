@@ -67,3 +67,9 @@ Add each new test's row to `docs/TESTS.md`. If `docs/ARCHITECTURE.md` or the REA
 ## Delivery check
 
 `gotest` passes (it builds, vets, races and runs every destination); the pull request is open. A tree that does not compile or whose tests did not run is a failed delivery.
+
+## Executor notes
+- Added `RawQuery()` to `wasmContext` in `edge/edge.go` and mock contexts (`testCtx`, `conformanceCtx`, `fakeCtx`) across tests.
+- Modified `Path()` implementations in test mocks to correctly strip queries using `router.PathOf()`.
+- Created `docs/TESTS.md` with the full test index as required by `gotest`.
+- Updated dependencies (`webtyp.com/router` to `v0.5.0` and `webtyp.com/crud` to `v0.0.15` which implements `RawQuery()`).

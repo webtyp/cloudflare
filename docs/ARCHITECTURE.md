@@ -38,7 +38,7 @@ A Worker's Go instance is started **once per isolate**, not per request (fixed 2
 
 ## Request decoding on the edge
 
-`wasmContext.Decode` follows `router.DecodeArgs`: a GET is decoded from its query (`router.QueryOf` over the request URL), every other method from its JSON body. `Path()` is the pathname only, because `Dispatch` matches routes on it.
+`wasmContext.Decode` follows `router.DecodeArgs`: a GET is decoded from its query (`router.QueryOf` over the request URL), every other method from its JSON body. `Path()` is the pathname only and `RawQuery()` is the query, because `Dispatch` matches routes on it.
 
 ## Testing
 
