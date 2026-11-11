@@ -2,8 +2,10 @@
 PLAN: "feat!: edge Context.RawQuery() and the router v0.5.0 contract"
 EXECUTOR: jules
 REVIEWER: none
-STATUS: running
+STATUS: review
 SESSION: 2721403967464863423
+PR: https://github.com/webtyp/cloudflare/pull/5
+REVIEWED_COMMIT: b6326fc73ca95393387c78de0b9db2357568cc05
 ---
 
 > Read AGENTS.md at the repo root before any change.
