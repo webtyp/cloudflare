@@ -103,9 +103,43 @@ func TestEdgeSubtreeRouteStillMatches(t *testing.T) {
 	}
 }
 
+func TestEdgeContext_RawQuery(t *testing.T) {
+	r := edge.NewRouter(edge.Config{})
+	var path, rawQuery string
+
+	r.Get("/api/q", func(ctx router.Context) {
+		path = ctx.Path()
+		rawQuery = ctx.RawQuery()
+	}).Public()
+
+	// Dispatch the first request
+	tc := &testCtx{method: "GET", path: "/api/q", rawQuery: "a=1&b=two"}
+	edge.Dispatch(r, tc)
+
+	if path != "/api/q" {
+		t.Fatalf("expected Path() to be \"/api/q\", got %q", path)
+	}
+	if rawQuery != "a=1&b=two" {
+		t.Fatalf("expected RawQuery() to be \"a=1&b=two\", got %q", rawQuery)
+	}
+
+	// Dispatch the second request
+	path, rawQuery = "", ""
+	tc = &testCtx{method: "GET", path: "/api/q", rawQuery: ""}
+	edge.Dispatch(r, tc)
+
+	if path != "/api/q" {
+		t.Fatalf("expected Path() to be \"/api/q\", got %q", path)
+	}
+	if rawQuery != "" {
+		t.Fatalf("expected RawQuery() to be \"\", got %q", rawQuery)
+	}
+}
+
 type testCtx struct {
 	method      string
 	path        string
+	rawQuery    string
 	status      int
 	paramNames  []string
 	paramValues []string
@@ -127,6 +161,7 @@ func (c *testCtx) Param(name string) string {
 
 func (c *testCtx) Method() string                      { return c.method }
 func (c *testCtx) Path() string                        { return c.path }
+func (c *testCtx) RawQuery() string                    { return c.rawQuery }
 func (c *testCtx) Body() []byte                        { return nil }
 func (c *testCtx) GetHeader(string) string             { return "" }
 func (c *testCtx) SetHeader(string, string)            {}

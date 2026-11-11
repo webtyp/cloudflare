@@ -38,7 +38,8 @@ type conformanceCtx struct {
 }
 
 func (c *conformanceCtx) Method() string { return c.method }
-func (c *conformanceCtx) Path() string   { return c.path }
+func (c *conformanceCtx) Path() string   { return router.PathOf(c.path) }
+func (c *conformanceCtx) RawQuery() string { return router.QueryOf(c.path) }
 func (c *conformanceCtx) Body() []byte   { return c.body }
 func (c *conformanceCtx) GetHeader(k string) string {
 	return c.headers[k]

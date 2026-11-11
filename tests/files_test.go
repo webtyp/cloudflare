@@ -36,7 +36,8 @@ func newCtx(method, path string, body []byte) *fakeCtx {
 }
 
 func (c *fakeCtx) Method() string            { return c.method }
-func (c *fakeCtx) Path() string              { return c.path }
+func (c *fakeCtx) Path() string              { return router.PathOf(c.path) }
+func (c *fakeCtx) RawQuery() string { return router.QueryOf(c.path) }
 func (c *fakeCtx) Body() []byte              { return c.body }
 func (c *fakeCtx) GetHeader(k string) string { return c.headers[k] }
 func (c *fakeCtx) SetHeader(k, v string)     { c.headers[k] = v }

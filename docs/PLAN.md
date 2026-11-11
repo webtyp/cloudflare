@@ -2,8 +2,10 @@
 PLAN: "feat!: edge Context.RawQuery() and the router v0.5.0 contract"
 EXECUTOR: jules
 REVIEWER: none
-STATUS: running
+STATUS: review
 SESSION: 2721403967464863423
+PR: https://github.com/webtyp/cloudflare/pull/5
+REVIEWED_COMMIT: b6326fc73ca95393387c78de0b9db2357568cc05
 ---
 
 > Read AGENTS.md at the repo root before any change.
@@ -67,3 +69,9 @@ Add each new test's row to `docs/TESTS.md`. If `docs/ARCHITECTURE.md` or the REA
 ## Delivery check
 
 `gotest` passes (it builds, vets, races and runs every destination); the pull request is open. A tree that does not compile or whose tests did not run is a failed delivery.
+
+## Executor notes
+- Added `RawQuery()` to `wasmContext` in `edge/edge.go` and mock contexts (`testCtx`, `conformanceCtx`, `fakeCtx`) across tests.
+- Modified `Path()` implementations in test mocks to correctly strip queries using `router.PathOf()`.
+- Created `docs/TESTS.md` with the full test index as required by `gotest`.
+- Updated dependencies (`webtyp.com/router` to `v0.5.0` and `webtyp.com/crud` to `v0.0.15` which implements `RawQuery()`).
