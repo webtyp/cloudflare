@@ -18,7 +18,7 @@ Build tags kept them from cross-importing by accident, but one module meant one 
 | `edge/` | `//go:build wasm` | Router adapter on top of `workers/` (`router.Router` → `workers.Handle`). Compiles middleware once (`compile()`), gates via `Validate()`/`allows()`, dispatches via `Dispatch()`/`Serve()`. Route matching, pattern validation, and route ordering rules are owned by `webtyp/router` and applied here so `httpd` and the edge router stay aligned via its conformance suite. |
 | `workers/` | `//go:build wasm` | JS↔Go bridge (`Request`/`Response` ↔ JS `Request`/`Response` via `syscall/js`). Owns the isolate handshake (`Handle()`/`Ready()` via `context.binding`). |
 | `d1/` | `//go:build wasm` | D1 adapter (`storage.Compiler` + `storage.Conn` over `context.env` binding) for `webtyp/orm`. |
-| `r2/` | `//go:build wasm` | R2 bucket adapter over `context.env` binding (`Put`/`Get`/`Delete`/`List`). |
+| `r2/` | `//go:build wasm` | R2 bucket adapter over `context.env` binding (`Put`/`Get`/`Delete`/`List`). `r2.NewFiles(bucket)` is the `files.Store` of an app deployed on Workers; append is read-modify-write. |
 | `log/` | `//go:build wasm` | Minimal edge logging — `Reject` (4xx), `Fail` (5xx), `Panic` (recovered at request boundary). |
 | `assets/` | `//go:build !wasm` | JS half of the runtime (`wasm_exec_worker.js`, `runtime.mjs`, `worker.mjs`) embedded for `goflare`'s bundler (`assets/embed.go`). `!wasm`-tagged — a Worker never reads its own source as data. |
 

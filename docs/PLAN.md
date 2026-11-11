@@ -2,8 +2,10 @@
 PLAN: "feat: r2.Files — the R2 bucket as a files.Store, proved by the files conformance suite"
 EXECUTOR: jules
 REVIEWER: none
-STATUS: running
+STATUS: review
 SESSION: 15743901672225066326
+PR: https://github.com/webtyp/cloudflare/pull/6
+REVIEWED_COMMIT: 2dc04df08978cf35cbd8d24cf36c078f99d266a4
 ---
 
 > Read AGENTS.md at the repo root before any change.
