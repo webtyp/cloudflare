@@ -2,6 +2,8 @@
 PLAN: "feat!: edge Context.RawQuery() and the router v0.5.0 contract"
 EXECUTOR: jules
 REVIEWER: none
+STATUS: running
+SESSION: 2721403967464863423
 ---
 
 > Read AGENTS.md at the repo root before any change.
