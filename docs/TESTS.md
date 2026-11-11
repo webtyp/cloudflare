@@ -28,6 +28,8 @@
 | [TestNewEdgeDoesNotUseSessions](../d1/session_test.go) | NewEdgeDoesNotUseSessions |
 | [TestNullBookmarkIsIgnored](../d1/session_test.go) | NullBookmarkIsIgnored |
 | [TestR2_BinaryRoundtrip](../tests/r2_test.go) | R2_BinaryRoundtrip |
+| [TestR2Files_Conformance](../tests/r2_files_test.go) | R2Files_Conformance |
+| [TestR2Files_RemoveMissingIsNotExist](../tests/r2_files_test.go) | R2Files_RemoveMissingIsNotExist |
 | [TestR2_NotFound](../tests/r2_test.go) | R2_NotFound |
 | [TestReady_SignalsItsOwnInstanceNotASharedGlobal](../tests/ready_handshake_test.go) | Ready_SignalsItsOwnInstanceNotASharedGlobal |
 | [TestRequest_HeaderIsCaseInsensitive](../workers/request_internal_test.go) | Request_HeaderIsCaseInsensitive |

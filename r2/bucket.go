@@ -45,7 +45,7 @@ func (b *Bucket) Get(key string) ([]byte, string, error) {
 		return nil, "", fmt.Errf("r2: get %s: %s", key, err.Error())
 	}
 	if obj.IsNull() || obj.IsUndefined() {
-		return nil, "", fmt.Errf("r2: object not found: %s", key)
+		return nil, "", ErrObjectNotFound
 	}
 
 	// obj is an R2Object. To get the data, we need to read from the body stream.
