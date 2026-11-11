@@ -2,6 +2,8 @@
 PLAN: "feat: r2.Files — the R2 bucket as a files.Store, proved by the files conformance suite"
 EXECUTOR: jules
 REVIEWER: none
+STATUS: running
+SESSION: 15743901672225066326
 ---
 
 > Read AGENTS.md at the repo root before any change.
