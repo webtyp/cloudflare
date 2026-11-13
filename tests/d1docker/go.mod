@@ -5,7 +5,7 @@ go 1.26.8
 replace webtyp.com/cloudflare => ../..
 
 require (
-	webtyp.com/cloudflare v0.0.85
+	webtyp.com/cloudflare v0.0.86
 	webtyp.com/ddl v0.0.49
 	webtyp.com/model v0.2.21
 	webtyp.com/storage v0.2.3
@@ -18,7 +18,7 @@ require (
 	webtyp.com/definitioncheck v0.0.3 // indirect
 	webtyp.com/escape v0.1.0 // indirect
 	webtyp.com/events v0.1.8 // indirect
-	webtyp.com/fmt v1.0.1 // indirect
+	webtyp.com/fmt v1.0.2 // indirect
 	webtyp.com/json v0.5.40 // indirect
 	webtyp.com/jsvalue v0.1.6 // indirect
 	webtyp.com/orm v0.12.37 // indirect
