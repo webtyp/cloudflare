@@ -5,9 +5,9 @@ go 1.26.8
 replace webtyp.com/cloudflare => ../..
 
 require (
-	webtyp.com/cloudflare v0.0.86
+	webtyp.com/cloudflare v0.0.87
 	webtyp.com/ddl v0.0.49
-	webtyp.com/model v0.2.21
+	webtyp.com/model v0.2.22
 	webtyp.com/storage v0.2.3
 )
 
