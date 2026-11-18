@@ -4,17 +4,17 @@ go 1.26.8
 
 require (
 	webtyp.com/await v0.1.2
-	webtyp.com/ddl v0.0.49
-	webtyp.com/fmt v1.0.2
+	webtyp.com/ddl v0.0.59
+	webtyp.com/fmt v1.0.3
 	webtyp.com/jsvalue v0.1.6
 	webtyp.com/orm v0.12.37
 	webtyp.com/sqlt v0.0.21
-	webtyp.com/storage v0.2.3
+	webtyp.com/storage v0.2.8
 )
 
 require (
 	webtyp.com/json v0.5.40
-	webtyp.com/model v0.2.23
+	webtyp.com/model v0.2.24
 	webtyp.com/router v0.5.0
 )
 
